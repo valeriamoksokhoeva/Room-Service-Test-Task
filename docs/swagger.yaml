@@ -1,0 +1,608 @@
+basePath: /
+definitions:
+  models.Booking:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      link:
+        type: string
+      slot_id:
+        type: string
+      status:
+        $ref: '#/definitions/models.StatusT'
+      user_id:
+        type: string
+    type: object
+  models.Error:
+    properties:
+      code:
+        $ref: '#/definitions/models.ErrorCode'
+      message:
+        type: string
+    type: object
+  models.ErrorCode:
+    enum:
+    - INVALID_REQUEST
+    - UNAUTHORIZED
+    - NOT_FOUND
+    - ROOM_NOT_FOUND
+    - SLOT_NOT_FOUND
+    - SLOT_ALREADY_BOOKED
+    - BOOKING_NOT_FOUND
+    - FORBIDDEN
+    - SCHEDULE_EXISTS
+    - INTERNAL_ERROR
+    type: string
+    x-enum-varnames:
+    - INVALID_REQUEST
+    - UNAUTHORIZED
+    - NOT_FOUND
+    - ROOM_NOT_FOUND
+    - SLOT_NOT_FOUND
+    - SLOT_ALREADY_BOOKED
+    - BOOKING_NOT_FOUND
+    - FORBIDDEN
+    - SCHEDULE_EXISTS
+    - INTERNAL_ERROR
+  models.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/models.Error'
+    type: object
+  models.Pagination:
+    properties:
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  models.RoleT:
+    enum:
+    - admin
+    - user
+    type: string
+    x-enum-varnames:
+    - Admin
+    - UserT
+  models.Room:
+    properties:
+      capacity:
+        type: integer
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  models.Schedule:
+    properties:
+      days_of_week:
+        items:
+          type: integer
+        type: array
+      end_time:
+        type: string
+      id:
+        type: string
+      room_id:
+        type: string
+      start_time:
+        type: string
+    type: object
+  models.Slot:
+    properties:
+      end:
+        type: string
+      id:
+        type: string
+      room_id:
+        type: string
+      start:
+        type: string
+    type: object
+  models.StatusT:
+    enum:
+    - active
+    - cancelled
+    type: string
+    x-enum-varnames:
+    - Active
+    - Cancelled
+  models.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      role:
+        $ref: '#/definitions/models.RoleT'
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Сервис бронирования переговорок
+  title: Room Booking Service
+  version: "1.0"
+paths:
+  /_info:
+    get:
+      responses:
+        "200":
+          description: OK
+      summary: Health check
+      tags:
+      - System
+  /bookings/{bookingId}/cancel:
+    post:
+      parameters:
+      - description: ID брони
+        in: path
+        name: bookingId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              booking:
+                $ref: '#/definitions/models.Booking'
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Отменить бронь (только user, только своя)
+      tags:
+      - Bookings
+  /bookings/create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Данные брони
+        in: body
+        name: body
+        required: true
+        schema:
+          properties:
+            createConferenceLink:
+              type: boolean
+            slotId:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            properties:
+              booking:
+                $ref: '#/definitions/models.Booking'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Создать бронь (только user)
+      tags:
+      - Bookings
+  /bookings/list:
+    get:
+      parameters:
+      - description: Номер страницы (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Размер страницы (default 20, max 100)
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              bookings:
+                items:
+                  $ref: '#/definitions/models.Booking'
+                type: array
+              pagination:
+                $ref: '#/definitions/models.Pagination'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Список всех броней с пагинацией (только admin)
+      tags:
+      - Bookings
+  /bookings/my:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              bookings:
+                items:
+                  $ref: '#/definitions/models.Booking'
+                type: array
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Мои брони (только user)
+      tags:
+      - Bookings
+  /dummyLogin:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 'Роль: admin или user'
+        in: body
+        name: body
+        required: true
+        schema:
+          properties:
+            role:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              token:
+                type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Получить тестовый JWT по роли
+      tags:
+      - Auth
+  /login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Учётные данные
+        in: body
+        name: body
+        required: true
+        schema:
+          properties:
+            email:
+              type: string
+            password:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              token:
+                type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Авторизация по email и паролю
+      tags:
+      - Auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Данные пользователя
+        in: body
+        name: body
+        required: true
+        schema:
+          properties:
+            email:
+              type: string
+            password:
+              type: string
+            role:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            properties:
+              user:
+                $ref: '#/definitions/models.User'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Регистрация пользователя
+      tags:
+      - Auth
+  /rooms/{roomId}/schedule/create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID переговорки
+        in: path
+        name: roomId
+        required: true
+        type: string
+      - description: Расписание
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.Schedule'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            properties:
+              schedule:
+                $ref: '#/definitions/models.Schedule'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Создать расписание переговорки (только admin)
+      tags:
+      - Schedules
+  /rooms/{roomId}/slots/list:
+    get:
+      parameters:
+      - description: ID переговорки
+        in: path
+        name: roomId
+        required: true
+        type: string
+      - description: Дата в формате YYYY-MM-DD
+        in: query
+        name: date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              slots:
+                items:
+                  $ref: '#/definitions/models.Slot'
+                type: array
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Список доступных слотов по переговорке и дате
+      tags:
+      - Slots
+  /rooms/create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Данные переговорки
+        in: body
+        name: body
+        required: true
+        schema:
+          properties:
+            capacity:
+              type: integer
+            description:
+              type: string
+            name:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            properties:
+              room:
+                $ref: '#/definitions/models.Room'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Создать переговорку (только admin)
+      tags:
+      - Rooms
+  /rooms/list:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              rooms:
+                items:
+                  $ref: '#/definitions/models.Room'
+                type: array
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Список переговорок
+      tags:
+      - Rooms
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
