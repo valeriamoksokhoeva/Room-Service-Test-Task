@@ -8,8 +8,8 @@ linters:
     - staticcheck
     - unused
 
-issues:
-  exclude-rules:
+exclusions:
+  rules:
     - path: _test\.go
       linters:
         - errcheck
