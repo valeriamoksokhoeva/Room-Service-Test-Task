@@ -2,17 +2,6 @@ version: "2"
 
 linters:
   enable:
-    - errcheck
-    - govet
-    - ineffassign
-    - staticcheck
-    - unused
-
-exclusions:
-  rules:
-    - path: _test\.go
-      linters:
-        - errcheck
-    - path: internal/tests/
-      linters:
-        - errcheck
+    - bodyclose      # проверяет что http response body закрыт
+    - copyloopvar    # ошибки с переменными в циклах
+    - misspell       # опечатки в комментариях
