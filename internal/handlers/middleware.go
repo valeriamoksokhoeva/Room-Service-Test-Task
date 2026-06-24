@@ -11,7 +11,12 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
+type contextKey string
 
+const (
+    UserIDKey contextKey = "user_id"
+    RoleKey   contextKey = "role"
+)
 type Claims struct {
     UserID uuid.UUID `json:"user_id"`
     Role   string `json:"role"`
@@ -54,8 +59,8 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			HandleError(w, models.ErrUnauthorized)
 			return
 		}
-		ctx := context.WithValue(r.Context(), "user_id", claims.UserID)
-		ctx = context.WithValue(ctx, "role", claims.Role)
+		ctx := context.WithValue(r.Context(), UserIDKey, claims.UserID)
+		ctx = context.WithValue(ctx, RoleKey, claims.Role)
 		next(w, r.WithContext(ctx))
 	}
 }

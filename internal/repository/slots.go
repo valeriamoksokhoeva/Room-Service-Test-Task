@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"rooms_service/internal/models"
 	"time"
@@ -33,7 +32,11 @@ func (rc *SlotRepo) InsertSlots(ctx context.Context, slots []models.Slot)  error
     }
 
     results := rc.conn.SendBatch(ctx, batch)
-    defer results.Close()
+    defer func() {
+		if err := results.Close(); err != nil {
+			log.Printf("batch close error: %v", err)
+		}
+	}()
 
     for range slots {
         if _, err := results.Exec(); err != nil {
@@ -82,7 +85,6 @@ func (rc *SlotRepo) GetAvailableSlots(ctx context.Context, room_id uuid.UUID, to
 		log.Println("rows error")
 		return nil, models.ErrInternalError
 	}
-	fmt.Println(slots)
 	return slots, nil
 }
 

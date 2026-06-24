@@ -13,9 +13,14 @@ import (
 func (rc *BookingRepo) InsertBooking(ctx context.Context, booking models.Booking) error {
 	tx, err := rc.conn.Begin(ctx)
 	if err != nil {
+		log.Printf("err1: %v", err)
 		return models.ErrInternalError
 	}
-	defer tx.Rollback(ctx)
+	defer func() {
+		if err := tx.Rollback(ctx); err != nil {
+			log.Printf("rollback error: %v", err)
+		}
+	}()
 
 	var slot_id uuid.UUID
 	query1 := `
@@ -35,6 +40,7 @@ func (rc *BookingRepo) InsertBooking(ctx context.Context, booking models.Booking
 
 	err = tx.QueryRow(ctx, query2, booking.SlotID).Scan(&count)
 	if err != nil {
+		log.Printf("err2: %v", err)
 		return models.ErrInternalError
 	}
 	if count > 0 {
@@ -47,6 +53,7 @@ func (rc *BookingRepo) InsertBooking(ctx context.Context, booking models.Booking
 	`
 	_, err = tx.Exec(ctx, query3, booking.ID, booking.SlotID, booking.UserID, booking.Status, booking.ConferenceLink, booking.CreatedAt)
 	if err != nil {
+		log.Printf("err3: %v", err)
 		return models.ErrInternalError
 	}
 	return tx.Commit(ctx)

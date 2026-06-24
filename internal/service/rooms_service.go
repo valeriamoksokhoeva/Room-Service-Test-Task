@@ -1,13 +1,15 @@
 package service
 
 import (
+	"context"
+	"rooms_service/internal/conference"
 	"rooms_service/internal/models"
 	"rooms_service/internal/models/dto/request"
-	"rooms_service/internal/repository"
-	"context"
 	respond "rooms_service/internal/models/dto/response"
-	"github.com/google/uuid"
+	"rooms_service/internal/repository"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type RoomService struct {
@@ -16,10 +18,11 @@ type RoomService struct {
 	schedule repository.ScheduleRepository
 	slot repository.SlotRepository
 	booking repository.BookingRepository
+	conference conference.ConferenceService
 }
 
-func NewService(room repository.RoomRepository, user repository.UserRepository, schedule repository.ScheduleRepository, slot repository.SlotRepository, booking repository.BookingRepository) DomainService {
-	return &RoomService{room: room, user: user, schedule: schedule, slot: slot, booking: booking}
+func NewService(room repository.RoomRepository, user repository.UserRepository, schedule repository.ScheduleRepository, slot repository.SlotRepository, booking repository.BookingRepository, c conference.ConferenceService) DomainService {
+	return &RoomService{room: room, user: user, schedule: schedule, slot: slot, booking: booking, conference: c}
 }
 
 type DomainService interface {

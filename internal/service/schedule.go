@@ -10,8 +10,9 @@ import (
 	"github.com/google/uuid"
 )
 
-// ДОБАВИТЬ КРОН ДЖОБ !!!!!
 func (r *RoomService) AddSchedule(ctx context.Context, req request.ScheduleRequest, room_id uuid.UUID) (models.Schedule, error) {
+	log.Printf("AddSchedule called: roomID=%v daysOfWeek=%v startTime=%s endTime=%s",
+        room_id, req.DaysOfWeek, req.StartTime, req.EndTime)
 	if !r.room.CheckRoomExist(ctx, room_id) {
 		return models.Schedule{}, models.ErrRoomNotFound
 	}
@@ -38,6 +39,8 @@ func (r *RoomService) AddSchedule(ctx context.Context, req request.ScheduleReque
 }
 
 func GenerateSlots(req models.Schedule, today time.Time, days int) []models.Slot{
+	log.Printf("GenerateSlots: daysOfWeek=%v startTime=%s endTime=%s days=%d",
+        req.DaysOfWeek, req.StartTime, req.EndTime, days)
 	var slots []models.Slot
 
 	for i := 0; i < days; i++ {

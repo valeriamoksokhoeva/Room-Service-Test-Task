@@ -24,6 +24,14 @@ func (r *RoomService) CreateBooking(ctx context.Context, req request.BookingRequ
 		CreatedAt: time.Now(),
 	}
 
+	if req.CreateConferenceLink {
+		link, err := r.conference.CreateLink(booking.ID)
+		if err != nil {
+			log.Printf("conference service error: %v", err)
+		} else {
+			booking.ConferenceLink = link
+		}
+	}
 	err := r.booking.InsertBooking(ctx, booking)
 	if err != nil {
 		return models.Booking{}, err

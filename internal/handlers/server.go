@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -56,7 +55,7 @@ func StartServer(r *mux.Router) {
 
 	go func() {
         if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-            fmt.Errorf("Server failed: %v", err)
+            log.Printf("Server failed: %v", err)
         }
     }()
 

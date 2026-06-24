@@ -10,9 +10,9 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
+	"rooms_service/internal/conference"
 	"rooms_service/internal/cron"
 	"rooms_service/internal/db"
 	"rooms_service/internal/handlers"
@@ -32,7 +32,7 @@ func main() {
 	connString := os.Getenv("DATABASE_URL")
 	conn, err := db.Connect(ctx, connString)
 	if err != nil {
-		fmt.Printf(err.Error())
+		log.Fatalf("Failed to connect to database: %v", err)
 		return
 	}
 	defer conn.Close()
@@ -43,7 +43,8 @@ func main() {
 	slot := repository.NewSlotRepository(conn)
 	booking := repository.NewBookingRepository(conn)
 
-	service := service.NewService(room, user, schedule, slot, booking)
+	conf := conference.NewMockConferenceService()
+	service := service.NewService(room, user, schedule, slot, booking, conf)
 	handler := handlers.NewHandler(service)
 
 	r := handlers.Router(handler)

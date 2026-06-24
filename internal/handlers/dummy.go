@@ -12,7 +12,7 @@ import (
 
 const (
     AdminUUID = "a0000000-0000-0000-0000-000000000001"
-    UserUUID  = "u0000000-0000-0000-0000-000000000002"
+    UserUUID  = "b0000000-0000-0000-0000-000000000002"
 )
 
 // @Summary      Получить тестовый JWT по роли
@@ -33,15 +33,16 @@ func (h *Handler)DummyLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var userId uuid.UUID
-
-	if dummy.Role == models.Admin {
+	switch dummy.Role {
+	case models.Admin:
 		userId, _ = uuid.Parse(AdminUUID)
-	} else if dummy.Role == models.UserT {
+	case models.UserT:
 		userId, _ = uuid.Parse(UserUUID)
-	} else {
+	default:
 		HandleError(w, models.ErrInvalidRequest)
 		return
 	}
+
 	tokenResponse, errCode := service.GenerateToken(userId, dummy.Role)
 	if errCode != nil {
 		HandleError(w, err)

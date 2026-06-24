@@ -5,7 +5,9 @@ import (
 	"net/http"
 	"rooms_service/internal/models"
 	"rooms_service/internal/models/dto/request"
+	respond "rooms_service/internal/models/dto/response"
 )
+
 // @Summary      Регистрация пользователя
 // @Tags         Auth
 // @Accept       json
@@ -29,7 +31,7 @@ func (h *Handler) Registrate(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	WriteJSON(w, 201, user)
+	WriteJSON(w, 201, respond.UserResponse{User: user})
 }
 
 // @Summary      Авторизация по email и паролю

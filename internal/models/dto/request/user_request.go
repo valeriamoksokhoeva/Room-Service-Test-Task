@@ -23,7 +23,7 @@ type RoomRequest struct {
 }
 
 type BookingRequest struct {
-	SlotId uuid.UUID `json:"slotId"`
+	SlotId uuid.UUID `json:"slot_id"`
 	CreateConferenceLink bool `json:"createConferenceLink"`
 }
 type DummyRegisterRequest struct {

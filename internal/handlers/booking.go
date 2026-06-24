@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"rooms_service/internal/models"
 	"rooms_service/internal/models/dto/request"
+	respond "rooms_service/internal/models/dto/response"
 	"strconv"
 
 	"github.com/google/uuid"
@@ -47,7 +48,7 @@ func (h *Handler) AddBooking(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	WriteJSON(w, 201, booking)
+	WriteJSON(w, 201, respond.BookingResponse{Booking: booking})
 }
 
 
@@ -73,7 +74,7 @@ func (h *Handler) MyBookings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	WriteJSON(w, 200, bookings)
+	WriteJSON(w, 200, respond.BookingsListResponse{Bookings: bookings})
 }
 
 
@@ -108,7 +109,7 @@ func (h *Handler) DeleteMyBooking(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	WriteJSON(w, 200, booking)
+	WriteJSON(w, 200, respond.BookingResponse{Booking: booking})
 }
 
 

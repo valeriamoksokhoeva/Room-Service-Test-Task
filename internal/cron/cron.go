@@ -5,6 +5,7 @@ import (
 	"rooms_service/internal/repository"
 	"rooms_service/internal/service"
 	"time"
+	"log"
 )
 
 func StartCronGenerationSlot(ctx context.Context, schedule repository.ScheduleRepository, slot repository.SlotRepository) {
@@ -32,6 +33,9 @@ func generateFutureSlots(ctx context.Context, schedule repository.ScheduleReposi
 	newDay := time.Now().UTC().AddDate(0,0,30)
 	for _, s := range schedules {
 		slots := service.GenerateSlots(s, newDay, 1)
-		slot.InsertSlots(ctx, slots)
+		err = slot.InsertSlots(ctx, slots)
+		if err != nil {
+			log.Printf("cron: insert slots error: %v", err)
+		}
 	}
 }

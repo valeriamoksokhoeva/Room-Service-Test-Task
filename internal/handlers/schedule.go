@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"rooms_service/internal/models"
 	"rooms_service/internal/models/dto/request"
+	respond "rooms_service/internal/models/dto/response"
 	"time"
-
+	"log"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
-
 
 // @Summary      Создать расписание переговорки (только admin)
 // @Tags         Schedules
@@ -29,7 +29,9 @@ import (
 // @Router       /rooms/{roomId}/schedule/create [post]
 func (h *Handler) CreateScheduleByAdmin(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	room_id_str := vars["roomId"]
+    log.Printf("ALL VARS: %+v", vars)
+    room_id_str := vars["roomId"]
+    log.Printf("roomId string: '%s'", room_id_str)
 	room_id, err := uuid.Parse(room_id_str)
 	if err != nil || room_id_str == ""{
 		HandleError(w, models.ErrInvalidRequest)
@@ -48,7 +50,7 @@ func (h *Handler) CreateScheduleByAdmin(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	WriteJSON(w, 201, schedule)
+	WriteJSON(w, 201, respond.ScheduleResponse{Schedule: schedule})
 }
 
 
@@ -91,5 +93,5 @@ func (h *Handler) GetSlots(w http.ResponseWriter, r *http.Request) {
 		HandleError(w, err)
 		return  
 	}
-	WriteJSON(w, 200, slots)
+	WriteJSON(w, 200, respond.SlotListResponse{Slots: slots})
 }

@@ -13,5 +13,8 @@ func (r *RoomService) ListSlots(ctx context.Context, room_id uuid.UUID, today ti
 	if err != nil {
 		return nil, err
 	}
+	if slots == nil {
+		return []models.Slot{}, nil
+	}
 	return slots, nil
 }

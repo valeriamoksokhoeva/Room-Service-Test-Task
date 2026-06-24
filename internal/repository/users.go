@@ -6,6 +6,7 @@ import (
 	"rooms_service/internal/models"
 )
 
+
 func (rc *UserRepo) CheckEmailExist(ctx context.Context, email string) bool {
 	queryExists := `
 		SELECT EXISTS (

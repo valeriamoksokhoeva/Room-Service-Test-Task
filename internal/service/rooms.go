@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"rooms_service/internal/models"
 	"rooms_service/internal/models/dto/request"
 	"time"
@@ -19,16 +18,11 @@ func (r *RoomService) GetRoomsList(ctx context.Context) ([]models.Room, error) {
 }
 
 func (r *RoomService) AddRoom(ctx context.Context, req request.RoomRequest) (models.Room, error) {
-	if req.Capacity <= 0 {
-		return models.Room{}, models.ErrInvalidRequest
-	}
-	fmt.Println(req)
 	room := models.Room{ID: uuid.New(), Name: req.Name, Description: req.Description, Capacity: req.Capacity, CreatedAt: time.Now()}
 
 	err := r.room.CreateRoom(ctx, room)
 	if err != nil {
 		return models.Room{}, err
 	}
-	fmt.Println(room)
 	return room, nil
 }

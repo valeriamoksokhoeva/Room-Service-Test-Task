@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"rooms_service/internal/models"
 	"rooms_service/internal/models/dto/request"
+	respond "rooms_service/internal/models/dto/response"
 )
 
 // @Summary      Список переговорок
@@ -21,7 +22,7 @@ func (s *Handler) ListRooms(w http.ResponseWriter, r *http.Request) {
 		HandleError(w, err)
 		return
 	}
-	WriteJSON(w, http.StatusOK, rooms)
+	WriteJSON(w, http.StatusOK, respond.RoomsListResponse{Rooms: rooms})
 }
 
 
@@ -45,5 +46,9 @@ func (s *Handler) CreateRoomByAdmin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	room, err := s.service.AddRoom(r.Context(), req)
-	WriteJSON(w, http.StatusOK, room)
+	if err != nil {
+		HandleError(w, err)
+		return
+	}
+	WriteJSON(w, 201, respond.RoomResponse{Room: room})
 }

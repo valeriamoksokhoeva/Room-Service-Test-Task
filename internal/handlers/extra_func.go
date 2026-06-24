@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"rooms_service/internal/models"
-    "fmt"
+    "log"
 	
 )
 func HandleError(w http.ResponseWriter, err error) {
@@ -35,16 +35,18 @@ func WriteJSON(w http.ResponseWriter, status int, data interface{}) {
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(status)
     if err := json.NewEncoder(w).Encode(data); err != nil {
-        // Ошибка кодирования — уже отправили заголовки
-        // Можно только логировать
-        fmt.Printf("Failed to encode JSON: %v", err)
+        
+        log.Printf("Failed to encode JSON: %v", err)
     }
 }
 
  func WriteError(w http.ResponseWriter, status int, err models.Error) {
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(status)
-    json.NewEncoder(w).Encode(map[string]any{
+    err1 := json.NewEncoder(w).Encode(map[string]any{
         "error": err,
     })
+    if err1 != nil {
+        log.Printf("encode error: %v", err)
+    }
 }
